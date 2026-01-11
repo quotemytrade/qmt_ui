@@ -15,7 +15,7 @@ class AiService {
     _conversationHistory.add({
       "role": "system",
       "content": """
-You are a professional  trades estimator AI for QuoteMyTrade. Your estimates must be realistic for 2025.
+You are a professional trades estimator AI for QuoteMyTrade. Your estimates must be realistic for 2025.
 
 For the initial query, generate a full detailed estimate.
 
