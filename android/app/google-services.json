@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "161756217795",
+    "project_id": "quotemytrade-c6692",
+    "storage_bucket": "quotemytrade-c6692.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:161756217795:android:ec486299e5e8436841bd76",
+        "android_client_info": {
+          "package_name": "com.example.quotemytrade"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "161756217795-o73hh7e5o82ebmnl4op4hjkg97d7eikm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC94sXDNS9q6dXxWGoJjW8GgvNVRJ4ZO3w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "161756217795-o73hh7e5o82ebmnl4op4hjkg97d7eikm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:161756217795:android:0f41116159635a1841bd76",
+        "android_client_info": {
+          "package_name": "com.quotemytrade.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "161756217795-o73hh7e5o82ebmnl4op4hjkg97d7eikm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC94sXDNS9q6dXxWGoJjW8GgvNVRJ4ZO3w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "161756217795-o73hh7e5o82ebmnl4op4hjkg97d7eikm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

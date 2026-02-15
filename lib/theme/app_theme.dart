@@ -11,7 +11,7 @@ class AppTheme {
 
     colorScheme: const ColorScheme.dark(
       primary: AppColors.primary,
-      secondary: AppColors.accent,
+      secondary: Color.fromARGB(255, 167, 60, 27),
       surface: AppColors.surface,
     ),
 

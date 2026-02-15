@@ -5,7 +5,9 @@ import 'package:quotemytrade/theme/app_colors.dart';
 import 'package:quotemytrade/widgets/cards/trust_badge.dart';
 
 class HeroSection extends StatelessWidget {
-  const HeroSection({super.key});
+  final VoidCallback? onGetQuoteTap;
+  final VoidCallback? onHowItWorksTap;
+  const HeroSection({super.key, this.onGetQuoteTap, this.onHowItWorksTap});
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +107,7 @@ class HeroSection extends StatelessWidget {
     return Row(
       children: [
         ElevatedButton(
-          onPressed: () {},
+          onPressed: onGetQuoteTap ?? () {},
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.accent,
             foregroundColor: AppColors.textPrimary,
@@ -116,7 +118,7 @@ class HeroSection extends StatelessWidget {
             elevation: 10,
           ),
           child: const Text(
-            'Get Your Quote in 30 Seconds ⚡',
+            'Get Your Quote in 30 Seconds. ⚡',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ).animate().scale(),
@@ -124,7 +126,7 @@ class HeroSection extends StatelessWidget {
         const SizedBox(width: 24),
 
         OutlinedButton(
-          onPressed: () {},
+          onPressed: onHowItWorksTap ?? () {},
           style: OutlinedButton.styleFrom(
             side: const BorderSide(color: Colors.white),
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
@@ -133,7 +135,7 @@ class HeroSection extends StatelessWidget {
             ),
           ),
           child: const Text(
-            'See How It Works',
+            'Are You a Trade Professional? ',
             style: TextStyle(color: Colors.white, fontSize: 18),
           ),
         ),

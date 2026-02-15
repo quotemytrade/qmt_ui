@@ -4,56 +4,14 @@ import 'package:file_picker/file_picker.dart';
 import 'package:quotemytrade/core/providers/chat_provider.dart';
 import 'package:quotemytrade/theme/app_colors.dart';
 
-class ChatInputWidget extends ConsumerStatefulWidget {
-  const ChatInputWidget({super.key});
+class ChatInputWidget extends ConsumerWidget {
+  final bool isDisabled;
+
+  const ChatInputWidget({super.key, this.isDisabled = false});
 
   @override
-  ConsumerState<ChatInputWidget> createState() => _ChatInputWidgetState();
-}
-
-class _ChatInputWidgetState extends ConsumerState<ChatInputWidget> {
-  final TextEditingController _messageController = TextEditingController();
-
-  @override
-  void dispose() {
-    _messageController.dispose();
-    super.dispose();
-  }
-
-  void _sendMessage() {
-    if (_messageController.text.trim().isEmpty) return;
-
-    final text = _messageController.text.trim();
-    _messageController.clear();
-
-    ref.read(chatMessagesProvider.notifier).sendTextMessage(text);
-  }
-
-  Future<void> _pickImage() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-      withData: true,
-    );
-
-    if (result == null || result.files.isEmpty) return;
-
-    final file = result.files.first;
-    final imageBytes = file.bytes;
-
-    if (imageBytes == null) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Failed to load image')));
-      }
-      return;
-    }
-
-    ref.read(chatMessagesProvider.notifier).sendImageMessage(imageBytes);
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.watch(chatTextControllerProvider);
     final isLoading = ref.watch(isLoadingProvider);
 
     return Container(
@@ -74,36 +32,33 @@ class _ChatInputWidgetState extends ConsumerState<ChatInputWidget> {
             icon: const Icon(
               Icons.add_photo_alternate,
               color: AppColors.primary,
-              size: 26,
             ),
-            onPressed: isLoading ? null : _pickImage,
-            tooltip: 'Upload photo',
+            onPressed: isDisabled ? null : () => _pickImage(ref),
           ),
           Expanded(
             child: TextField(
-              controller: _messageController,
+              controller: controller,
+              enabled: !isDisabled,
               decoration: InputDecoration(
-                hintText: 'Describe the work or ask a question...',
+                hintText: 'Describe the work...',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
-                fillColor: const Color(0xFFF5F7FA),
+                fillColor: Colors.grey.shade50,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 20,
                   vertical: 12,
                 ),
               ),
               maxLines: null,
-              textCapitalization: TextCapitalization.sentences,
-              onSubmitted: isLoading ? null : (_) => _sendMessage(),
-              enabled: !isLoading,
+              onSubmitted: (_) => _sendMessage(ref),
             ),
           ),
           const SizedBox(width: 8),
           FloatingActionButton(
-            onPressed: isLoading ? null : _sendMessage,
+            onPressed: isDisabled ? null : () => _sendMessage(ref),
             backgroundColor: AppColors.primary,
             mini: true,
             child: const Icon(Icons.send, color: Colors.white),
@@ -111,5 +66,29 @@ class _ChatInputWidgetState extends ConsumerState<ChatInputWidget> {
         ],
       ),
     );
+  }
+
+  void _sendMessage(WidgetRef ref) {
+    final controller = ref.read(chatTextControllerProvider);
+    final text = controller.text.trim();
+
+    if (text.isEmpty) return;
+
+    controller.clear();
+    ref.read(chatMessagesProvider.notifier).sendTextMessage(text);
+  }
+
+  Future<void> _pickImage(WidgetRef ref) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withData: true,
+    );
+
+    if (result != null && result.files.isNotEmpty) {
+      final imageBytes = result.files.first.bytes;
+      if (imageBytes != null) {
+        ref.read(chatMessagesProvider.notifier).sendImageMessage(imageBytes);
+      }
+    }
   }
 }

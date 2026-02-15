@@ -1,11 +1,23 @@
 import 'dart:typed_data';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:quotemytrade/core/models/chat_message.dart';
 import 'package:quotemytrade/core/services/ai_service.dart';
 import 'package:quotemytrade/core/services/location_service.dart';
+import 'package:quotemytrade/core/services/pdf_service.dart';
 
 final aiServiceProvider = Provider((ref) => AiService());
 final locationServiceProvider = Provider((ref) => LocationService());
+final pdfServiceProvider = Provider((ref) => PdfService());
+
+// ✅ FIXED TextController Provider
+final chatTextControllerProvider = Provider.autoDispose<TextEditingController>((
+  ref,
+) {
+  final controller = TextEditingController();
+  ref.onDispose(controller.dispose);
+  return controller;
+});
 
 final chatMessagesProvider =
     StateNotifierProvider<ChatNotifier, List<ChatMessage>>((ref) {
@@ -121,6 +133,11 @@ class ChatNotifier extends StateNotifier<List<ChatMessage>> {
 
   void clearChat() {
     ref.read(aiServiceProvider).clearHistory();
+    _addInitialMessage();
+  }
+
+  // Add to ChatNotifier class
+  void resetForQuote() {
     _addInitialMessage();
   }
 }

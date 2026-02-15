@@ -52,100 +52,48 @@ CRITICAL RULES:
     required String text,
     Uint8List? imageBytes,
     String? locationHint,
+    String sessionId = "default", // Add this
   }) async {
     try {
-      List<Map<String, dynamic>> content = [];
+      final String pythonServiceUrl =
+          "http://localhost:8000/estimate"; // Update with deployed URL
 
-      final String fullText = locationHint != null
-          ? "$locationHint\n\n$text"
-          : text;
-
-      content.add({"type": "text", "text": fullText});
+      final data = {
+        'text': text,
+        'locationHint': locationHint ?? '',
+        'session_id': sessionId,
+      };
 
       if (imageBytes != null) {
         final base64Image = base64Encode(imageBytes);
-        content.add({
-          "type": "image_url",
-          "image_url": {"url": "data:image/jpeg;base64,$base64Image"},
-        });
+        data['image_b64'] = base64Image;
       }
-
-      final List<Map<String, dynamic>> messages = List.from(
-        _conversationHistory,
-      );
-      messages.add({"role": "user", "content": content});
-
-      final body = jsonEncode({
-        "model": ApiConfig.grokModel,
-        "messages": messages,
-        "max_tokens": ApiConfig.maxTokens,
-        "temperature": ApiConfig.temperature,
-        "seed": ApiConfig.seed,
-      });
 
       final response = await http.post(
-        Uri.parse(ApiConfig.grokApiUrl),
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          'Authorization': 'Bearer ${ApiConfig.grokApiKey}',
-        },
-        body: body,
+        Uri.parse(pythonServiceUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(data),
       );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(utf8.decode(response.bodyBytes));
-        final jsonString = data['choices'][0]['message']['content'] as String;
+      dynamic result;
+      try {
+        result = jsonDecode(response.body);
+      } catch (_) {
+        result = {'success': false, 'error': 'Invalid response from service'};
+      }
 
-        print("Raw AI Response:\n$jsonString");
-
-        final Map<String, dynamic> parsed = jsonDecode(jsonString);
-        String responseText =
-            parsed['response_text'] ?? "Here's your detailed estimate:";
-
-        final estimation = Estimation.fromJson(parsed);
-
-        // Calculate ±5% range
-        double baseTotal = estimation.totalCost;
-        double low = (baseTotal * 0.95 / 100).round() * 100;
-        double high = (baseTotal * 1.05 / 100).round() * 100;
-
-        String currencySymbol = _extractCurrency(responseText);
-        String rangeText =
-            "The estimated total cost is $currencySymbol${low.toStringAsFixed(0)} to $currencySymbol${high.toStringAsFixed(0)} (±5% variance).";
-
-        if (responseText.contains("The estimated total cost is")) {
-          responseText = responseText.replaceAll(
-            RegExp(r'The estimated total cost is[^.]*\.'),
-            rangeText,
-          );
-        } else {
-          responseText += "\n\n$rangeText";
-        }
-
-        // Add to conversation history
-        _conversationHistory.add({"role": "user", "content": text});
-        _conversationHistory.add({
-          "role": "assistant",
-          "content": responseText,
-        });
-
+      if (response.statusCode == 200 && result['success'] == true) {
+        final estimation = Estimation.fromJson(result['estimation']);
         return {
           'success': true,
-          'responseText': responseText,
+          'responseText': result['responseText'],
           'estimation': estimation,
         };
-      } else {
-        return {
-          'success': false,
-          'error': 'API Error: ${response.statusCode}\n${response.body}',
-        };
       }
+
+      return {'success': false, 'error': result['error'] ?? 'Unknown error'};
     } catch (e) {
-      print("AI Service Error: $e");
-      return {
-        'success': false,
-        'error': 'Failed to get response. Please try again.',
-      };
+      return {'success': false, 'error': e.toString()};
     }
   }
 
